@@ -5,7 +5,7 @@ import sys
 from gsp import GSP
 from util import argmax_index
 
-class BBAgent:
+class Aylobb:
     """Balanced bidding agent"""
     def __init__(self, id, value, budget):
         self.id = id
@@ -51,7 +51,15 @@ class BBAgent:
         """
         # TODO: Fill this in
         utilities = []   # Change this
-
+        prev_round_slot_info = self.slot_info(t, history, reserve)
+        prev_round_history = history.round(t-1)
+        for info in prev_round_slot_info:
+            min_bid = info[1]
+            slot_id = info[0]
+            prev_round_history = history.round(t-1)
+            pos_effect = prev_round_history.clicks[slot_id]
+            utility = pos_effect * (self.value - min_bid)
+            utilities.append(utility)
         
         return utilities
 
@@ -63,7 +71,7 @@ class BBAgent:
         the other-agent bid for that slot in the last round.  If slot_id = 0,
         max_bid is min_bid * 2
         """
-        i =  argmax_index(self.expected_utils(t, history, reserve))
+        i = argmax_index(self.expected_utils(t, history, reserve))
         info = self.slot_info(t, history, reserve)
         return info[i]
 
@@ -80,11 +88,24 @@ class BBAgent:
 
         prev_round = history.round(t-1)
         (slot, min_bid, max_bid) = self.target_slot(t, history, reserve)
+    
+        # looking in history bids
+        target_price = prev_round.bids[slot][1]
+        # looking in history clicks
+        target_pos_effect = prev_round.clicks[slot]
+        one_below_target_pos_effect = prev_round.clicks[slot]
 
-        # TODO: Fill this in.
-        bid = 0  # change this
-        
+        bid = 0
+        # print("target_price, slot")
+        # print(target_price, slot)
+        if target_price >= self.value or slot == 1:
+            bid = self.value
+        else:
+            bid = self.value - ((target_pos_effect * (self.value - target_price) / one_below_target_pos_effect))
+    
         return bid
+    
+
 
     def __repr__(self):
         return "%s(id=%d, value=%d)" % (

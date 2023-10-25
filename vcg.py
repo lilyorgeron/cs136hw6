@@ -43,6 +43,8 @@ class VCG:
 
         (allocation, just_bids) = list(zip(*allocated_bids))
 
+        base_case = max(reserve, allocated_bids[-1][1])
+        payments = [0 for i in range(len(allocated_bids))]
         # TODO: You just have to implement this function
         def total_payment(k):
             """
@@ -52,13 +54,19 @@ class VCG:
             n = len(allocation)
 
             # TODO: Compute the payment and return it.
+            print(c)
+            print(allocated_bids)
+            if k == len(allocation) - 1:
+                return c[k] * base_case
+            payment = (c[k] - c[k+1])*allocated_bids[k+1][1] + payments[k+1]
+            return payment
 
         def norm(totals):
             """Normalize total payments by the clicks in each slot"""
             return [x_y[0]/x_y[1] for x_y in zip(totals, slot_clicks)]
 
         per_click_payments = norm(
-            [total_payment(k) for k in range(len(allocation))])
+            [total_payment(k) for k in range(len(allocation) - 1, -1, -1)])
 
         return (list(allocation), per_click_payments)
 
