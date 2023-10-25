@@ -61,6 +61,8 @@ class Aylobb:
             utility = pos_effect * (self.value - min_bid)
             utilities.append(utility)
         
+        print(self.id)
+        print(utilities)
         return utilities
 
     def target_slot(self, t, history, reserve):
@@ -89,20 +91,20 @@ class Aylobb:
         prev_round = history.round(t-1)
         (slot, min_bid, max_bid) = self.target_slot(t, history, reserve)
     
-        # looking in history bids
-        target_price = prev_round.bids[slot][1]
+        # Looking at history of bids
+        target_price = self.slot_info(t, history, reserve)[slot][1]
         # looking in history clicks
         target_pos_effect = prev_round.clicks[slot]
-        one_below_target_pos_effect = prev_round.clicks[slot]
+        one_below_target_pos_effect = prev_round.clicks[slot-1]
 
         bid = 0
         # print("target_price, slot")
         # print(target_price, slot)
-        if target_price >= self.value or slot == 1:
+        if target_price >= self.value or slot == 0:
             bid = self.value
         else:
             bid = self.value - ((target_pos_effect * (self.value - target_price) / one_below_target_pos_effect))
-    
+
         return bid
     
 
